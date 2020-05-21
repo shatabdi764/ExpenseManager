@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-
-   <item  android:id="@+id/dashboard"
-    android:title="Dashboard"
-    android:icon="@drawable/dashboard"
-    />
-    <item android:id="@+id/income"
-        android:title="Income"
-        android:icon="@drawable/Income"/>
-    <item android:id="@+id/expense"
-        android:title="Expense"
-        android:icon="@drawable/Expense"/>
+    <item
+        android:id="@+id/dashboard"
+        android:icon="@drawable/dashboard"
+        android:title="Dashboard" />
+    <item
+        android:id="@+id/income"
+        android:icon="@drawable/income"
+        android:title="Income" />
+    <item
+        android:id="@+id/expense"
+        android:icon="@drawable/expense"
+        android:title="Expense" />
 
 </menu>

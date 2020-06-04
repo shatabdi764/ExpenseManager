@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#274B6A</color>
-    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorPrimaryDark">#B33C00</color>
     <color name="colorAccent">#CD5022</color>
-    <color name="bgBottomNavigation">#fe485a</color>
+    <color name="bgBottomNavigation">#BCAF3A</color>
+    <color name="toolbar_color">#FFD1F829</color>
+    <color name="nav_header">#E30B473D</color>
+
+    <color name="dashboard_color">#F4CC13</color>
+    <color name="income_color">#FF04125E</color>
+    <color name="expense_color">#FFD81B5B</color>
 </resources>

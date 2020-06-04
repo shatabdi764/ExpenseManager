@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
+        if (mAuth.getCurrentUser() != null) {
+            startActivity(new Intent(getApplicationContext(), ContentActivity.class));
+        }
         mDialog = new ProgressDialog(this);
         loginDetails();
 
@@ -66,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             mDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Login Successful...", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                            startActivity(new Intent(getApplicationContext(), ContentActivity.class));
                         } else {
                             mDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "81484592679-963skett23u5ondaladqhvdbgv45m852.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.expensemanager",
+            "certificate_hash": "2ecb499e4260a542f956655a23c5ed53de8e28c7"
+          }
+        },
+        {
           "client_id": "81484592679-fvsb1uirg0svpgu8jvqiu51a8tqhd66u.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

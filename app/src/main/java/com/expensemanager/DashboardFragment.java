@@ -49,10 +49,16 @@ public class DashboardFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
-        String uid = mUser.getUid();
-        mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child(uid);
-        mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child(uid);
-
+        String uid = null;
+        if (mUser != null) {
+            uid = mUser.getUid();
+        }
+        if (uid != null) {
+            mIncomeDatabase = FirebaseDatabase.getInstance().getReference("IncomeDatabase").child(uid);
+        }
+        if (uid != null) {
+            mExpenseDatabase = FirebaseDatabase.getInstance().getReference("ExpenseDatabase").child(uid);
+        }
 
         //Connect floating button to layout
         fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);

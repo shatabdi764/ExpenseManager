@@ -16,6 +16,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="?actionBarSize"
             android:orientation="vertical">
 
             <LinearLayout
@@ -136,6 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="15dp"
+            android:layout_marginBottom="120dp"
             android:layout_marginRight="15dp">
 
             <TextView
@@ -176,8 +178,6 @@
             android:backgroundTint="#6A1B9A"
             android:src="@drawable/income"
             app:fabSize="normal" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 </FrameLayout>
 

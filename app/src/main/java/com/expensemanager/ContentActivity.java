@@ -3,6 +3,7 @@ package com.expensemanager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -17,11 +18,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
 public class ContentActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
-    private BottomNavigationView bottomNavigationView;
-    private FrameLayout frameLayout;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,9 +34,7 @@ public class ContentActivity extends AppCompatActivity implements NavigationView
 
         NavigationView navigationView = findViewById(R.id.naView);
         navigationView.setNavigationItemSelectedListener(this);
-        frameLayout = findViewById(R.id.frame_container);
-
-
+        FrameLayout frameLayout = findViewById(R.id.frame_container);
     }
 
     public void onBackPressed() {
@@ -62,11 +56,11 @@ public class ContentActivity extends AppCompatActivity implements NavigationView
                 break;
 
             case R.id.income:
-
+                fragment = new IncomeFragment();
                 break;
 
             case R.id.expense:
-
+                fragment = new ExpenseFragment();
                 break;
         }
 

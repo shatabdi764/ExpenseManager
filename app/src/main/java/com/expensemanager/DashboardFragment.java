@@ -1,8 +1,8 @@
 package com.expensemanager;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +11,24 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.expensemanager.model.Data;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 public class DashboardFragment extends Fragment {
 
@@ -41,6 +51,7 @@ public class DashboardFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
     private DatabaseReference mExpenseDatabase;
+    private TextView sumIncome;
 
     //run
     @Override
@@ -59,7 +70,9 @@ public class DashboardFragment extends Fragment {
         if (uid != null) {
             mExpenseDatabase = FirebaseDatabase.getInstance().getReference("ExpenseDatabase").child(uid);
         }
-
+        sumIncome = myview.findViewById(R.id.income_set_result);
+        sumIncome.setText(Objects.requireNonNull(getContext()).getSharedPreferences("PREF", Context.MODE_PRIVATE)
+                .getString("Sum_Income", "0.00"));
         //Connect floating button to layout
         fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);
         fab_income_btn = myview.findViewById(R.id.income_ft_btn);
@@ -103,11 +116,7 @@ public class DashboardFragment extends Fragment {
                 }
             }
         });
-
-
         return myview;
-
-
     }
 
     private void addData() {
@@ -147,25 +156,29 @@ public class DashboardFragment extends Fragment {
                 String type = ediType.getText().toString().trim();
                 String amount = edtAmount.getText().toString().trim();
                 String note = edtNote.getText().toString().trim();
-
-                if (TextUtils.isEmpty(type)) {
-                    ediType.setError("Required Field....");
-                    return;
+                if (!type.isEmpty() && !amount.isEmpty() && !note.isEmpty()) {
+                    String id = mIncomeDatabase.push().getKey();
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyy", Locale.US);
+                    String date = formatter.format(new Date());
+                    Data data = new Data(Integer.parseInt(amount), type, note, id, date);
+                    if (id != null) {
+                        mIncomeDatabase.child(id).setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(getContext(), "Data Stored Successfully", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Please fill all the details", Toast.LENGTH_SHORT).show();
                 }
-
-                if (TextUtils.isEmpty(amount)) {
-                    ediType.setError("Required Field....");
-                    return;
-                }
-                if (TextUtils.isEmpty(note)) {
-                    ediType.setError("Required Field....");
-                    return;
-                }
-
-
             }
-
-
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {

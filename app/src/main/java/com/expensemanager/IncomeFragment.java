@@ -1,25 +1,22 @@
 package com.expensemanager;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import androidx.fragment.app.Fragment;
-
-
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
-
-import android.widget.TextView;
-
-
-import com.expensemanager.Model.Data;
+import com.expensemanager.adapter.FireBaseRecyclerAdapter;
+import com.expensemanager.model.Data;
+import com.google.auto.value.AutoAnnotation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,111 +25,67 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Objects;
 
 
-   public class IncomeFragment extends Fragment {
-
-
-    private FirebaseAuth mAuth;
+public class IncomeFragment extends Fragment {
     private DatabaseReference mIncomeDatabase;
-    private RecyclerView recyclerView;
     //TextView
     private TextView incomeTotalSum;
+    private FireBaseRecyclerAdapter fireBaseRecyclerAdapter;
+    private ArrayList<Data> dataArrayList = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View myView = inflater.inflate(R.layout.fragment_income2, container, false);
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
-        String uid = mUser.getUid();
-
-        mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeDatabase").child(uid);
-        incomeTotalSum=myView.findViewById(R.id.income_txt_result);
+        String uid = null;
+        if (mUser != null) {
+            uid = mUser.getUid();
+        }
+        if (uid != null) {
+            mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeDatabase").child(uid);
+        }
+//        incomeTotalSum = myView.findViewById(R.id.income_txt_result);
         recyclerView = myView.findViewById(R.id.recycler_id_income);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        layoutManager.setReverseLayout(true);
-        layoutManager.setStackFromEnd(true);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(layoutManager);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.show();
 
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int totaltvalue=0;
-                for(DataSnapshot mysanapshot:dataSnapshot.getChildren()){
-
-                    Data data=mysanapshot.getValue(Data.class);
-                    totaltvalue+=data.getAmount();
-                    String stTotalvalue=String.valueOf(totaltvalue);
-                    incomeTotalSum.setText(stTotalvalue);
-
+                for (DataSnapshot mySnapshot : dataSnapshot.getChildren()) {
+                    Data data = mySnapshot.getValue(Data.class);
+                    if (data != null) {
+                        dataArrayList.add(data);
+                    } else {
+                        Toast.makeText(getContext(), "null data", Toast.LENGTH_SHORT).show();
+                    }
                 }
-
+                progressDialog.dismiss();
+                fireBaseRecyclerAdapter = new FireBaseRecyclerAdapter(getContext(), dataArrayList);
+                recyclerView.setAdapter(fireBaseRecyclerAdapter);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                fireBaseRecyclerAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
         return myView;
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseRecyclerAdapter<Data, MyViewHolder> adapter = new FirebaseRecyclerAdapter<Data, MyViewHolder>(){
-
-            {
-            Data.class,
-                    R.layout.income_recycler_data,
-                    MyViewHolder.class,
-                    mIncomeDatabase
-        } {
-            protected void populateViewHolder (MyViewHolder viewHolder,  Data model,int position)
-            populateViewHolder.setType(model.getType());
-            populateViewHolder.setType(model.getNote());
-            populateViewHolder.setType(model.getDate());
-            populateViewHolder.setType(model.getAmount());
-
-
-        }
-    };
-
-
-}
-    public static class MyViewHolder extends RecyclerView.ViewHolder{
-        View mView;
-        public MyViewHolder(View itemView)
-        {
-            super(itemView);
-            mView=itemView;
-        }
-        private void setType(String type){
-            TextView mType=mView.findViewById(R.id.type_txt_income);
-            mType.setText(type);
-        }
-        private void setNote(String note)
-        {
-            TextView mNote=mView.findViewById(R.id.note_txt_income);
-            mNote.setText(note);
-        }
-        private void setDate(String date)
-        {
-            TextView mDate=mView.findViewById(R.id.date_txt_income);
-            mDate.setText(date);
-        }
-        private void setAmount(int amount)
-        {
-            TextView mAmount =mView.findViewById(R.id.amount_txt_income);
-            String stamount=String.valueOf(amount);
-            mAmount.setText(stamount);
-        }
-    }
-
-
 }
 
         

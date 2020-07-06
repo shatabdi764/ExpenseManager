@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         }
         mDialog = new ProgressDialog(this);
         loginDetails();
-
     }
 
     private void loginDetails() {

@@ -73,6 +73,14 @@
                         android:text="000.00"
                         android:textAppearance="?android:textAppearanceLarge"
                         android:textColor="@android:color/black" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:visibility="gone"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="true"/>
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -137,8 +145,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="15dp"
-            android:layout_marginBottom="120dp"
-            android:layout_marginRight="15dp">
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="120dp">
 
             <TextView
                 android:id="@+id/income_ft_text"

@@ -10,20 +10,26 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.expensemanager.adapter.FireBaseRecyclerAdapter;
 import com.expensemanager.model.Data;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -52,12 +58,16 @@ public class DashboardFragment extends Fragment {
     private DatabaseReference mIncomeDatabase;
     private DatabaseReference mExpenseDatabase;
     private TextView sumIncome;
-
+    private ProgressBar progressBar;
     //run
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View myview = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
+        progressBar = myview.findViewById(R.id.progress_bar);
+        sumIncome = myview.findViewById(R.id.income_set_result);
+        sumIncome.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = null;
@@ -70,9 +80,31 @@ public class DashboardFragment extends Fragment {
         if (uid != null) {
             mExpenseDatabase = FirebaseDatabase.getInstance().getReference("ExpenseDatabase").child(uid);
         }
-        sumIncome = myview.findViewById(R.id.income_set_result);
-        sumIncome.setText(Objects.requireNonNull(getContext()).getSharedPreferences("PREF", Context.MODE_PRIVATE)
-                .getString("Sum_Income", "0.00"));
+        mIncomeDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                double totalValue = 0.0;
+                String stTotalValue = null;
+                for (DataSnapshot mySnapshot : dataSnapshot.getChildren()) {
+                    Data data = mySnapshot.getValue(Data.class);
+                    if (data != null) {
+                        totalValue += data.getAmount();
+                        stTotalValue = String.valueOf(totalValue);
+                    } else {
+                        Toast.makeText(getContext(), "null data", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                progressBar.setVisibility(View.GONE);
+                sumIncome.setVisibility(View.VISIBLE);
+                sumIncome.setText(String.valueOf(stTotalValue));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         //Connect floating button to layout
         fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);
         fab_income_btn = myview.findViewById(R.id.income_ft_btn);

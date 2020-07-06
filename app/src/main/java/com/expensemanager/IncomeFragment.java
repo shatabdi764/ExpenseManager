@@ -62,21 +62,15 @@ public class IncomeFragment extends Fragment {
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                double totalValue = 0.0;
-                String stTotalValue = null;
-//                dataArrayList.clear();
                 for (DataSnapshot mySnapshot : dataSnapshot.getChildren()) {
                     Data data = mySnapshot.getValue(Data.class);
                     if (data != null) {
-                        totalValue += data.getAmount();
-                        stTotalValue = String.valueOf(totalValue);
                         dataArrayList.add(data);
                     } else {
                         Toast.makeText(getContext(), "null data", Toast.LENGTH_SHORT).show();
                     }
                 }
                 progressDialog.dismiss();
-                Objects.requireNonNull(getContext()).getSharedPreferences("PREF",Context.MODE_PRIVATE).edit().putString("Sum_Income", String.valueOf(stTotalValue)).apply();
                 fireBaseRecyclerAdapter = new FireBaseRecyclerAdapter(getContext(), dataArrayList);
                 recyclerView.setAdapter(fireBaseRecyclerAdapter);
                 recyclerView.setHasFixedSize(true);

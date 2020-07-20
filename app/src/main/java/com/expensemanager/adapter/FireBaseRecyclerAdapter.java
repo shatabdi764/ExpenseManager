@@ -43,6 +43,15 @@ public class FireBaseRecyclerAdapter extends RecyclerView.Adapter<FireBaseRecycl
         holder.note.setText(note);
         holder.date.setText(date);
         holder.amount.setText(amount);
+          CardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                
+
+            }
+
+        });
+    
     }
 
     @Override

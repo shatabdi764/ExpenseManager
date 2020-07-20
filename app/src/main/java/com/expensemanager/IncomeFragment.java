@@ -77,6 +77,20 @@ public class IncomeFragment extends Fragment {
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                 fireBaseRecyclerAdapter.notifyDataSetChanged();
             }
+              recyclerView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    post_key=getRef(position).getKey();
+
+                    type=model.getType();
+                    note=model.getNote();
+                    amount=model.getAmount();
+
+
+                    updateDataItem();
+                      }
+            });
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -88,4 +102,57 @@ public class IncomeFragment extends Fragment {
     }
 }
 
+        private void updateDataItem()
+    {
+        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater=LayoutInflater.from(getActivity());
+        View myview=inflater.inflate(R.layout.update_data_item,null);
+        mydialog.setView(myview);
+
+        edtAmount=myview.findViewById(R.id.amount_edt);
+        edtType=myview.findViewById(R.id.type_edt);
+        edtNote=myview.findViewById(R.id.note_edt);
+///Set data to edit text
+        edtType.setText(type);
+        edtType.setSelection(type.length());
+
+        edtNote.setText(note);
+        edtNote.setText(note.length());
+
+        edtAmount.setText(String.valueOf(amount));
+        edtAmount.setSelection((String.valueOf(amount).length()));
+
+        btnUpdate=myview.findViewById(R.id.btnUpdate);
+        btnDelete=myview.findViewById(R.id.btn_Delete);
+        final AlertDialog dialog=mydialog.create();
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            type=edtType.getText().toString().trim();
+            note=edtNote.getText().toString().trim();
+            String mamount=String.valueOf(amount);
+            mamount=edtAmount.getText().toString().trim();
+
+            int myamount=Integer.parseInt(mamount);
+            String mDate= DateFormat.getDateInstance().format(new Date());
+            Data data=new Data(myamount,type,note,post_key,mDate);
+
+            mIncomeDatabase.child(post_key).setValue(data);
+            dialog.dismiss();
+
+            }
+        });
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            mIncomeDatabase.child(post_key).removeValue();
+                dialog.dismiss();
+        }
+        });
+        dialog.show();
+    }
+}
         
+

@@ -37,10 +37,10 @@ public class IncomeAdapter extends RecyclerView.Adapter<IncomeAdapter.MyViewHold
 
     @Override
     public void onBindViewHolder(@NonNull IncomeAdapter.MyViewHolder holder, final int position) {
-        String type = "Income Type : " + dataArrayList.get(position).getType();
-        String note = "Income Note : " + dataArrayList.get(position).getNote();
+        final String type = "Income Type : " + dataArrayList.get(position).getType();
+        final String note = "Income Note : " + dataArrayList.get(position).getNote();
         String date = "Income Date : " + dataArrayList.get(position).getDate();
-        String amount = "Income Amount :" + dataArrayList.get(position).getAmount();
+        final String amount = "Income Amount :" + dataArrayList.get(position).getAmount();
         holder.type.setText(type);
         holder.note.setText(note);
         holder.date.setText(date);
@@ -51,7 +51,8 @@ public class IncomeAdapter extends RecyclerView.Adapter<IncomeAdapter.MyViewHold
             public void onClick(View view) {
                 //Here we can handle click on individuals incomes
                 if (onItemClickListener != null) {
-                    onItemClickListener.onClicked(position);
+                    onItemClickListener.onClicked(position, String.valueOf(dataArrayList.get(position).getAmount()),
+                            dataArrayList.get(position).getType(), dataArrayList.get(position).getNote(), dataArrayList.get(position).getDate(), dataArrayList.get(position).getId());
                 }
             }
         });
@@ -76,8 +77,9 @@ public class IncomeAdapter extends RecyclerView.Adapter<IncomeAdapter.MyViewHold
         }
     }
 
+    //Create a interface and implement it in activity/fragment
     public interface OnItemClickListener {
-        void onClicked(int pos);
+        void onClicked(int pos, String amount, String type, String note, String date, String id);
     }
 }
 

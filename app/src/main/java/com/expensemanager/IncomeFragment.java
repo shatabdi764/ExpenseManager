@@ -1,62 +1,91 @@
 package com.expensemanager;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.expensemanager.adapter.FireBaseRecyclerAdapter;
+import com.expensemanager.model.Data;
+import com.google.auto.value.AutoAnnotation;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link IncomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- *
- */
 public class IncomeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment IncomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static IncomeFragment newInstance(String param1, String param2) {
-        IncomeFragment fragment = new IncomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-    public IncomeFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    private DatabaseReference mIncomeDatabase;
+    //TextView
+    private TextView incomeTotalSum;
+    private FireBaseRecyclerAdapter fireBaseRecyclerAdapter;
+    private ArrayList<Data> dataArrayList = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_income2, container, false);
+        View myView = inflater.inflate(R.layout.fragment_income2, container, false);
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        String uid = null;
+        if (mUser != null) {
+            uid = mUser.getUid();
+        }
+        if (uid != null) {
+            mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeDatabase").child(uid);
+        }
+//        incomeTotalSum = myView.findViewById(R.id.income_txt_result);
+        recyclerView = myView.findViewById(R.id.recycler_id_income);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.show();
+
+        mIncomeDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot mySnapshot : dataSnapshot.getChildren()) {
+                    Data data = mySnapshot.getValue(Data.class);
+                    if (data != null) {
+                        dataArrayList.add(data);
+                    } else {
+                        Toast.makeText(getContext(), "null data", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                progressDialog.dismiss();
+                fireBaseRecyclerAdapter = new FireBaseRecyclerAdapter(getContext(), dataArrayList);
+                recyclerView.setAdapter(fireBaseRecyclerAdapter);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                fireBaseRecyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return myView;
     }
 }
+
+        

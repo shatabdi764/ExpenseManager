@@ -1,4 +1,4 @@
-package com.expensemanager.Model;
+package com.expensemanager.model;
 
 public class Data {
     private String date;

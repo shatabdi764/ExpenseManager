@@ -1,8 +1,8 @@
 package com.expensemanager;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +10,31 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.expensemanager.adapter.FireBaseRecyclerAdapter;
+import com.expensemanager.model.Data;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 public class DashboardFragment extends Fragment {
 
@@ -41,18 +57,53 @@ public class DashboardFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
     private DatabaseReference mExpenseDatabase;
-
+    private TextView sumIncome;
+    private ProgressBar progressBar;
     //run
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View myview = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
+        progressBar = myview.findViewById(R.id.progress_bar);
+        sumIncome = myview.findViewById(R.id.income_set_result);
+        sumIncome.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
-        String uid = mUser.getUid();
-        mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child(uid);
-        mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child(uid);
+        String uid = null;
+        if (mUser != null) {
+            uid = mUser.getUid();
+        }
+        if (uid != null) {
+            mIncomeDatabase = FirebaseDatabase.getInstance().getReference("IncomeDatabase").child(uid);
+        }
+        if (uid != null) {
+            mExpenseDatabase = FirebaseDatabase.getInstance().getReference("ExpenseDatabase").child(uid);
+        }
+        mIncomeDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                double totalValue = 0.0;
+                String stTotalValue = null;
+                for (DataSnapshot mySnapshot : dataSnapshot.getChildren()) {
+                    Data data = mySnapshot.getValue(Data.class);
+                    if (data != null) {
+                        totalValue += data.getAmount();
+                        stTotalValue = String.valueOf(totalValue);
+                    } else {
+                        Toast.makeText(getContext(), "null data", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                progressBar.setVisibility(View.GONE);
+                sumIncome.setVisibility(View.VISIBLE);
+                sumIncome.setText(String.valueOf(stTotalValue));
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //Connect floating button to layout
         fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);
@@ -97,11 +148,7 @@ public class DashboardFragment extends Fragment {
                 }
             }
         });
-
-
         return myview;
-
-
     }
 
     private void addData() {
@@ -141,25 +188,29 @@ public class DashboardFragment extends Fragment {
                 String type = ediType.getText().toString().trim();
                 String amount = edtAmount.getText().toString().trim();
                 String note = edtNote.getText().toString().trim();
-
-                if (TextUtils.isEmpty(type)) {
-                    ediType.setError("Required Field....");
-                    return;
+                if (!type.isEmpty() && !amount.isEmpty() && !note.isEmpty()) {
+                    String id = mIncomeDatabase.push().getKey();
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyy", Locale.US);
+                    String date = formatter.format(new Date());
+                    Data data = new Data(Integer.parseInt(amount), type, note, id, date);
+                    if (id != null) {
+                        mIncomeDatabase.child(id).setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(getContext(), "Data Stored Successfully", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Please fill all the details", Toast.LENGTH_SHORT).show();
                 }
-
-                if (TextUtils.isEmpty(amount)) {
-                    ediType.setError("Required Field....");
-                    return;
-                }
-                if (TextUtils.isEmpty(note)) {
-                    ediType.setError("Required Field....");
-                    return;
-                }
-
-
             }
-
-
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {

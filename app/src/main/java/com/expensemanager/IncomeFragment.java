@@ -1,7 +1,6 @@
 package com.expensemanager;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.expensemanager.adapter.FireBaseRecyclerAdapter;
+import com.expensemanager.adapter.IncomeAdapter;
 import com.expensemanager.model.Data;
-import com.google.auto.value.AutoAnnotation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,14 +24,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 
-public class IncomeFragment extends Fragment {
+public class IncomeFragment extends Fragment implements IncomeAdapter.OnItemClickListener {
     private DatabaseReference mIncomeDatabase;
     //TextView
     private TextView incomeTotalSum;
-    private FireBaseRecyclerAdapter fireBaseRecyclerAdapter;
+    private IncomeAdapter incomeAdapter;
     private ArrayList<Data> dataArrayList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ProgressDialog progressDialog;
@@ -41,7 +38,6 @@ public class IncomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View myView = inflater.inflate(R.layout.fragment_income2, container, false);
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
@@ -52,7 +48,7 @@ public class IncomeFragment extends Fragment {
         if (uid != null) {
             mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeDatabase").child(uid);
         }
-//        incomeTotalSum = myView.findViewById(R.id.income_txt_result);
+
         recyclerView = myView.findViewById(R.id.recycler_id_income);
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Fetching Data");
@@ -71,11 +67,11 @@ public class IncomeFragment extends Fragment {
                     }
                 }
                 progressDialog.dismiss();
-                fireBaseRecyclerAdapter = new FireBaseRecyclerAdapter(getContext(), dataArrayList);
-                recyclerView.setAdapter(fireBaseRecyclerAdapter);
+                incomeAdapter = new IncomeAdapter(getContext(), dataArrayList, );
+                recyclerView.setAdapter(incomeAdapter);
                 recyclerView.setHasFixedSize(true);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                fireBaseRecyclerAdapter.notifyDataSetChanged();
+                incomeAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -85,6 +81,12 @@ public class IncomeFragment extends Fragment {
         });
 
         return myView;
+    }
+
+    @Override
+    public void onClicked() {
+        //AlertBox
+
     }
 }
 

@@ -67,7 +67,7 @@ public class IncomeFragment extends Fragment implements IncomeAdapter.OnItemClic
                     }
                 }
                 progressDialog.dismiss();
-                incomeAdapter = new IncomeAdapter(getContext(), dataArrayList, );
+                incomeAdapter = new IncomeAdapter(getContext(), dataArrayList, IncomeFragment.this);
                 recyclerView.setAdapter(incomeAdapter);
                 recyclerView.setHasFixedSize(true);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -84,9 +84,9 @@ public class IncomeFragment extends Fragment implements IncomeAdapter.OnItemClic
     }
 
     @Override
-    public void onClicked() {
+    public void onClicked(int pos) {
         //AlertBox
-
+        
     }
 }
 

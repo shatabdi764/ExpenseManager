@@ -36,7 +36,7 @@ public class IncomeAdapter extends RecyclerView.Adapter<IncomeAdapter.MyViewHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull IncomeAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull IncomeAdapter.MyViewHolder holder, final int position) {
         String type = "Income Type : " + dataArrayList.get(position).getType();
         String note = "Income Note : " + dataArrayList.get(position).getNote();
         String date = "Income Date : " + dataArrayList.get(position).getDate();
@@ -51,7 +51,7 @@ public class IncomeAdapter extends RecyclerView.Adapter<IncomeAdapter.MyViewHold
             public void onClick(View view) {
                 //Here we can handle click on individuals incomes
                 if (onItemClickListener != null) {
-                    onItemClickListener.onClicked();
+                    onItemClickListener.onClicked(position);
                 }
             }
         });
@@ -77,7 +77,7 @@ public class IncomeAdapter extends RecyclerView.Adapter<IncomeAdapter.MyViewHold
     }
 
     public interface OnItemClickListener {
-        void onClicked();
+        void onClicked(int pos);
     }
 }
 

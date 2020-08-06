@@ -1,11 +1,13 @@
 package com.expensemanager;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,9 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.expensemanager.adapter.FireBaseRecyclerAdapter;
+import com.expensemanager.adapter.IncomeAdapter;
 import com.expensemanager.model.Data;
-import com.google.auto.value.AutoAnnotation;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,14 +29,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 
-public class IncomeFragment extends Fragment {
+public class IncomeFragment extends Fragment implements IncomeAdapter.OnItemClickListener {
     private DatabaseReference mIncomeDatabase;
-    //TextView
-    private TextView incomeTotalSum;
-    private FireBaseRecyclerAdapter fireBaseRecyclerAdapter;
+    private IncomeAdapter incomeAdapter;
     private ArrayList<Data> dataArrayList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ProgressDialog progressDialog;
@@ -41,7 +41,6 @@ public class IncomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View myView = inflater.inflate(R.layout.fragment_income2, container, false);
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
@@ -52,13 +51,82 @@ public class IncomeFragment extends Fragment {
         if (uid != null) {
             mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeDatabase").child(uid);
         }
-//        incomeTotalSum = myView.findViewById(R.id.income_txt_result);
+        incomeAdapter = new IncomeAdapter(getContext(), dataArrayList, IncomeFragment.this);
         recyclerView = myView.findViewById(R.id.recycler_id_income);
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Fetching Data");
         progressDialog.setMessage("Please Wait...");
         progressDialog.show();
 
+        fetchData();
+        return myView;
+    }
+
+    @Override
+    public void onClicked(int pos, final String amount, final String type, final String note, final String date, final String id) {
+        //AlertBox
+        AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View myView = inflater.inflate(R.layout.custom_layout_for_insertdata, null);
+        myDialog.setView(myView);
+        final AlertDialog dialog = myDialog.create();
+
+
+        final EditText edtAmount = myView.findViewById(R.id.amount_edt);
+        final EditText ediType = myView.findViewById(R.id.type_edt);
+        final EditText edtNote = myView.findViewById(R.id.note_edt);
+
+        Button btnSave = myView.findViewById(R.id.btnSave);
+        Button btnCancel = myView.findViewById(R.id.btnCancel);
+
+        //Put the existing data on views
+        edtAmount.setText(amount);
+        ediType.setText(type);
+        edtNote.setText(note);
+
+        btnSave.setText("Update");
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                String type_ed = ediType.getText().toString().trim();
+                String amount_ed = edtAmount.getText().toString().trim();
+                String note_ed = edtNote.getText().toString().trim();
+                if (!type_ed.isEmpty() && !amount_ed.isEmpty() && !note_ed.isEmpty()) {
+                    if (!type_ed.equals(type) || !amount_ed.equals(amount) || !note_ed.equals(note)) {
+                        Data data = new Data(Integer.parseInt(amount_ed), type_ed, note_ed, id, date);
+                        if (id != null) {
+                            mIncomeDatabase.child(id).setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(getContext(), "Data updated Successfully", Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                    progressDialog.show();
+                                    fetchData();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "No data changed", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Please fill all the details", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    public void fetchData () {
+        dataArrayList.clear();
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -71,88 +139,17 @@ public class IncomeFragment extends Fragment {
                     }
                 }
                 progressDialog.dismiss();
-                fireBaseRecyclerAdapter = new FireBaseRecyclerAdapter(getContext(), dataArrayList);
-                recyclerView.setAdapter(fireBaseRecyclerAdapter);
+                recyclerView.setAdapter(incomeAdapter);
                 recyclerView.setHasFixedSize(true);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                fireBaseRecyclerAdapter.notifyDataSetChanged();
+                incomeAdapter.notifyDataSetChanged();
             }
-              recyclerView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    post_key=getRef(position).getKey();
-
-                    type=model.getType();
-                    note=model.getNote();
-                    amount=model.getAmount();
-
-
-                    updateDataItem();
-                      }
-            });
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-
-        return myView;
     }
 }
-
-        private void updateDataItem()
-    {
-        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater=LayoutInflater.from(getActivity());
-        View myview=inflater.inflate(R.layout.update_data_item,null);
-        mydialog.setView(myview);
-
-        edtAmount=myview.findViewById(R.id.amount_edt);
-        edtType=myview.findViewById(R.id.type_edt);
-        edtNote=myview.findViewById(R.id.note_edt);
-///Set data to edit text
-        edtType.setText(type);
-        edtType.setSelection(type.length());
-
-        edtNote.setText(note);
-        edtNote.setText(note.length());
-
-        edtAmount.setText(String.valueOf(amount));
-        edtAmount.setSelection((String.valueOf(amount).length()));
-
-        btnUpdate=myview.findViewById(R.id.btnUpdate);
-        btnDelete=myview.findViewById(R.id.btn_Delete);
-        final AlertDialog dialog=mydialog.create();
-
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            type=edtType.getText().toString().trim();
-            note=edtNote.getText().toString().trim();
-            String mamount=String.valueOf(amount);
-            mamount=edtAmount.getText().toString().trim();
-
-            int myamount=Integer.parseInt(mamount);
-            String mDate= DateFormat.getDateInstance().format(new Date());
-            Data data=new Data(myamount,type,note,post_key,mDate);
-
-            mIncomeDatabase.child(post_key).setValue(data);
-            dialog.dismiss();
-
-            }
-        });
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            mIncomeDatabase.child(post_key).removeValue();
-                dialog.dismiss();
-        }
-        });
-        dialog.show();
-    }
-}
-        
 

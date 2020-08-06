@@ -1,7 +1,6 @@
 package com.expensemanager;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.expensemanager.adapter.FireBaseRecyclerAdapter;
 import com.expensemanager.model.Data;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,7 +31,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 
 public class DashboardFragment extends Fragment {
 
@@ -52,7 +48,9 @@ public class DashboardFragment extends Fragment {
 
     //Animation
     private Animation FadOpen, FadClose;
-
+///Dashboard Income and expense
+    private TextView totalIncomeresult;
+    private TextView totalExpenseResult;
     ///Firebase
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
@@ -115,6 +113,10 @@ public class DashboardFragment extends Fragment {
         fab_income_txt = myview.findViewById(R.id.income_ft_text);
         fab_expense_txt = myview.findViewById(R.id.expense_ft_text);
 
+        //Total income and expense result.....
+        totalIncomeresult =myview.findViewById(R.id.income_set_result);
+        totalExpenseResult=myview.findViewById(R.id.expense_set_result);
+
 //Animation
         FadOpen = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_open);
         FadClose = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_close);
@@ -148,6 +150,48 @@ public class DashboardFragment extends Fragment {
                 }
             }
         });
+        //Calculate total income
+        mIncomeDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int totalsum=0;
+                for(DataSnapshot mysnap:snapshot.getChildren()){
+                    Data data=mysnap.getValue(Data.class);
+                    totalsum+=+data.getAmount();
+                    String stResult=String.valueOf(totalsum);
+                    totalIncomeresult.setText(stResult);
+
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        }); 
+        //Calculate total expense
+        mExpenseDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int totalsum=0;
+                for(DataSnapshot mysnap:snapshot.getChildren()){
+                    Data data=mysnap.getValue(Data.class);
+                    totalsum+=data.getAmount();
+                    String stResult=String.valueOf(totalsum);
+                    totalExpenseResult.setText(stResult);
+
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         return myview;
     }
 
@@ -161,7 +205,7 @@ public class DashboardFragment extends Fragment {
         fab_expense_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                expenseDataInsert();
             }
         });
 
@@ -219,4 +263,60 @@ public class DashboardFragment extends Fragment {
         });
         dialog.show();
     }
+
+public void expenseDataInsert()
+{
+    AlertDialog.Builder mydialog = new AlertDialog.Builder(getActivity());
+    LayoutInflater inflater = LayoutInflater.from(getActivity());
+
+    View myview = inflater.inflate(R.layout.custom_layout_for_insertdata, null);
+    mydialog.setView(myview);
+    final AlertDialog dialog = mydialog.create();
+    final EditText edtAmount = myview.findViewById(R.id.amount_edt);
+    final EditText ediType = myview.findViewById(R.id.type_edt);
+    final EditText edtNote = myview.findViewById(R.id.note_edt);
+
+    Button btnSave = myview.findViewById(R.id.btnSave);
+    Button btnCancel = myview.findViewById(R.id.btnCancel);
+
+    btnSave.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View view) {
+            String type = ediType.getText().toString().trim();
+            String amount = edtAmount.getText().toString().trim();
+            String note = edtNote.getText().toString().trim();
+            if (!type.isEmpty() && !amount.isEmpty() && !note.isEmpty()) {
+                String id = mExpenseDatabase.push().getKey();
+                SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyy", Locale.US);
+                String date = formatter.format(new Date());
+                Data data = new Data(Integer.parseInt(amount), type, note, id, date);
+                if (id != null) {
+                    mExpenseDatabase.child(id).setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getContext(), "Data Stored Successfully", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            } else {
+                Toast.makeText(getContext(), "Please fill all the details", Toast.LENGTH_SHORT).show();
+            }
+        }
+    });
+    btnCancel.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View view) {
+            dialog.dismiss();
+        }
+    });
+    dialog.show();
+
+
+}
+
+
 }

@@ -1,63 +1,158 @@
 package com.expensemanager;
 
+
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.expensemanager.adapter.ExpenseAdapter;
+import com.expensemanager.adapter.IncomeAdapter;
+import com.expensemanager.model.Data;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ExpenseFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ExpenseFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ExpenseFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ExpenseFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ExpenseFragment newInstance(String param1, String param2) {
-        ExpenseFragment fragment = new ExpenseFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+public class ExpenseFragment extends Fragment implements ExpenseAdapter.OnItemClickListener {
+    private DatabaseReference mExpenseDatabase;
+    private ExpenseAdapter expenseAdapter;
+    private ArrayList<Data> dataArrayList = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_expense, container, false);
+        View myView = inflater.inflate(R.layout.fragment_expense, container, false);
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        String uid = null;
+        if (mUser != null) {
+            uid = mUser.getUid();
+        }
+        if (uid != null) {
+            mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseDatabase").child(uid);
+        }
+       expenseAdapter = new ExpenseAdapter(getContext(), dataArrayList,ExpenseFragment.this);
+        recyclerView = myView.findViewById(R.id.recycler_id_expense);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.show();
+
+        fetchData();
+        return myView;
+    }
+
+    @Override
+    public void onClicked(int pos, final String amount, final String type, final String note, final String date, final String id) {
+        //AlertBox
+        AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View myView = inflater.inflate(R.layout.custom_layout_for_insertdata, null);
+        myDialog.setView(myView);
+        final AlertDialog dialog = myDialog.create();
+
+
+        final EditText edtAmount = myView.findViewById(R.id.amount_edt);
+        final EditText ediType = myView.findViewById(R.id.type_edt);
+        final EditText edtNote = myView.findViewById(R.id.note_edt);
+
+        Button btnSave = myView.findViewById(R.id.btnSave);
+        Button btnCancel = myView.findViewById(R.id.btnCancel);
+
+        //Put the existing data on views
+        edtAmount.setText(amount);
+        ediType.setText(type);
+        edtNote.setText(note);
+
+        btnSave.setText("Update");
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                String type_ed = ediType.getText().toString().trim();
+                String amount_ed = edtAmount.getText().toString().trim();
+                String note_ed = edtNote.getText().toString().trim();
+                if (!type_ed.isEmpty() && !amount_ed.isEmpty() && !note_ed.isEmpty()) {
+                    if (!type_ed.equals(type) || !amount_ed.equals(amount) || !note_ed.equals(note)) {
+                        Data data = new Data(Integer.parseInt(amount_ed), type_ed, note_ed, id, date);
+                        if (id != null) {
+                            mExpenseDatabase.child(id).setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(getContext(), "Data updated Successfully", Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                    progressDialog.show();
+                                    fetchData();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "No data changed", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Please fill all the details", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    public void fetchData () {
+        dataArrayList.clear();
+        mExpenseDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot mySnapshot : dataSnapshot.getChildren()) {
+                    Data data = mySnapshot.getValue(Data.class);
+                    if (data != null) {
+                        dataArrayList.add(data);
+                    } else {
+                        Toast.makeText(getContext(), "null data", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                progressDialog.dismiss();
+                recyclerView.setAdapter(expenseAdapter);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                expenseAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
+

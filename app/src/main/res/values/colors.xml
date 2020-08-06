@@ -3,8 +3,8 @@
     <color name="colorPrimary">#274B6A</color>
     <color name="colorPrimaryDark">#B33C00</color>
     <color name="colorAccent">#CD5022</color>
-    <color name="bgBottomNavigation">#BCAF3A</color>
-    <color name="toolbar_color">#FFD1F829</color>
+    <color name="bgBottomNavigation">#6D2971</color>
+    <color name="toolbar_color">#FFE10B0B</color>
     <color name="nav_header">#E30B473D</color>
 
     <color name="dashboard_color">#F4CC13</color>

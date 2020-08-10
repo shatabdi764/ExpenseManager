@@ -5,8 +5,8 @@
     <color name="colorAccent">#CD5022</color>
     <color name="bgBottomNavigation">#6D2971</color>
     <color name="toolbar_color">#FFE10B0B</color>
-    <color name="nav_header">#E30B473D</color>
-
+    <color name="nav_header">#951AAA</color>
+    <color name="main_background">#9CDF0A6D</color>
     <color name="dashboard_color">#F4CC13</color>
     <color name="income_color">#FF04125E</color>
     <color name="expense_color">#FFD81B5B</color>

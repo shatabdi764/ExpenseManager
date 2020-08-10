@@ -13,10 +13,8 @@
             android:id="@+id/my_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/toolbar_color">
-
-        </androidx.appcompat.widget.Toolbar>
+            android:background="@color/toolbar_color"></androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-
+    <include layout="@layout/activity_home" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

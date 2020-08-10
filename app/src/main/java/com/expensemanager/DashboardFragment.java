@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import com.expensemanager.model.Data;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,6 +39,7 @@ public class DashboardFragment extends Fragment {
     private FloatingActionButton fab_main_btn;
     private FloatingActionButton fab_income_btn;
     private FloatingActionButton fab_expense_btn;
+
     // Floating button  textview...
 
     private TextView fab_income_txt;
@@ -102,7 +104,7 @@ public class DashboardFragment extends Fragment {
                 Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-
+//
         //Connect floating button to layout
         fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);
         fab_income_btn = myview.findViewById(R.id.income_ft_btn);
@@ -150,6 +152,7 @@ public class DashboardFragment extends Fragment {
                 }
             }
         });
+
         //Calculate total income
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -193,6 +196,8 @@ public class DashboardFragment extends Fragment {
             }
         });
         return myview;
+        //
+
     }
 
     private void addData() {

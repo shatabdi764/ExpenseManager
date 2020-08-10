@@ -14,6 +14,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"
@@ -26,4 +27,6 @@
         app:itemIconTint="@android:color/white"
         app:itemTextColor="@android:color/white"
         app:menu="@menu/bottommenu" />
+
+    <include layout="@layout/appbar" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

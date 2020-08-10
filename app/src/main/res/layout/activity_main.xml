@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:orientation="vertical"
-
+    android:background="@color/main_background"
     tools:context=".MainActivity">
 
     <ScrollView
@@ -13,11 +13,13 @@
         android:layout_height="370dp">
 
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            >
 
 
         </LinearLayout>

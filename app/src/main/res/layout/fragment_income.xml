@@ -11,4 +11,4 @@
     android:layout_marginTop="?actionBarSize"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintTop_toTopOf="parent"
-    tools:listitem="@layout/income_recycler_data" />
+    tools:listitem="@layout/content_income" />

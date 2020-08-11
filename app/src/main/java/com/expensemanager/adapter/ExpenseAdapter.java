@@ -30,7 +30,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.MyViewHo
     @Override
     public ExpenseAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.expense_recycler_data, parent, false);
+        View view = layoutInflater.inflate(R.layout.content_expense, parent, false);
         return new MyViewHolder(view);
     }
 

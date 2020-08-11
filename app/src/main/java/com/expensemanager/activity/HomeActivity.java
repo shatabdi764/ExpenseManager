@@ -1,4 +1,4 @@
-package com.expensemanager;
+package com.expensemanager.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -8,6 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.expensemanager.R;
+import com.expensemanager.ui.DashboardFragment;
+import com.expensemanager.ui.ExpenseFragment;
+import com.expensemanager.ui.IncomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {

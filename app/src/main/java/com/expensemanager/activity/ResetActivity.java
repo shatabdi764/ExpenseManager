@@ -1,4 +1,4 @@
-package com.expensemanager;
+package com.expensemanager.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,9 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.expensemanager.MainActivity;
+import com.expensemanager.R;
 
 public class ResetActivity extends AppCompatActivity {
     private EditText newpass;

@@ -1,14 +1,17 @@
-package com.expensemanager;
+package com.expensemanager.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.expensemanager.R;
+import com.expensemanager.ui.DashboardFragment;
+import com.expensemanager.ui.ExpenseFragment;
+import com.expensemanager.ui.IncomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
@@ -20,6 +23,9 @@ public class HomeActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        if (savedInstanceState == null) {
+            navigation.setSelectedItemId(R.id.dashboard); // change to whichever id should be default
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -30,15 +36,16 @@ public class HomeActivity extends AppCompatActivity {
             Fragment fragment;
             switch (item.getItemId()) {
                 case R.id.dashboard:
-                    Toast.makeText(HomeActivity.this, "DashBoard", Toast.LENGTH_SHORT).show();
-//                    fragment = new DashboardFragment();
-//                    loadFragment(fragment);
+                    fragment = new DashboardFragment();
+                    loadFragment(fragment);
                     return true;
                 case R.id.income:
-                    Toast.makeText(HomeActivity.this, "income", Toast.LENGTH_SHORT).show();
+                    fragment = new IncomeFragment();
+                    loadFragment(fragment);
                     return true;
                 case R.id.expense:
-                    Toast.makeText(HomeActivity.this, "Expenses", Toast.LENGTH_SHORT).show();
+                    fragment = new ExpenseFragment();
+                    loadFragment(fragment);
                     return true;
             }
             return false;

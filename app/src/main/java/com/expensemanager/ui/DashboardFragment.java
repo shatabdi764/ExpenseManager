@@ -1,4 +1,4 @@
-package com.expensemanager;
+package com.expensemanager.ui;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.expensemanager.R;
 import com.expensemanager.model.Data;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

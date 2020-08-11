@@ -1,4 +1,4 @@
-package com.expensemanager;
+package com.expensemanager.ui;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.expensemanager.R;
 import com.expensemanager.adapter.IncomeAdapter;
 import com.expensemanager.model.Data;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,7 +41,7 @@ public class IncomeFragment extends Fragment implements IncomeAdapter.OnItemClic
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View myView = inflater.inflate(R.layout.fragment_income2, container, false);
+        View myView = inflater.inflate(R.layout.fragment_income, container, false);
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = null;
@@ -56,6 +56,7 @@ public class IncomeFragment extends Fragment implements IncomeAdapter.OnItemClic
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Fetching Data");
         progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
         fetchData();

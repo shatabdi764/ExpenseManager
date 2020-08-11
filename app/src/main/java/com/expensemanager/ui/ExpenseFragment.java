@@ -1,4 +1,4 @@
-package com.expensemanager;
+package com.expensemanager.ui;
 
 
 
@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,8 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.expensemanager.R;
 import com.expensemanager.adapter.ExpenseAdapter;
-import com.expensemanager.adapter.IncomeAdapter;
 import com.expensemanager.model.Data;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

@@ -31,7 +31,7 @@ public class IncomeAdapter extends RecyclerView.Adapter<IncomeAdapter.MyViewHold
     @Override
     public IncomeAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.income_recycler_data, parent, false);
+        View view = layoutInflater.inflate(R.layout.content_income, parent, false);
         return new MyViewHolder(view);
     }
 

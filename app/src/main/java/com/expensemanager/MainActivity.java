@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(getApplicationContext(), ContentActivity.class));
+            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
         }
         mDialog = new ProgressDialog(this);
         loginDetails();
@@ -68,11 +69,14 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             mDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Login Successful...", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getApplicationContext(), ContentActivity.class));
-                        } else {
-                            mDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                         }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        mDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }

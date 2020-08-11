@@ -56,6 +56,7 @@ public class IncomeFragment extends Fragment implements IncomeAdapter.OnItemClic
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Fetching Data");
         progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
         fetchData();
